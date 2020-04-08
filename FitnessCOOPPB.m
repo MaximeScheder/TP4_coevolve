@@ -1,17 +1,17 @@
-function FitnessCOOPPB(Minit, Mend, filename, saveName)
+function pcost = FitnessCOOPPB(Minit, Mend, config)
 
 %PERIODIC BOUNDARIES
 
- config=load(filename);
+%config=load(filename);
 % config=load('/Users/maximescheder/Documents/EPFL/MA1_1/Labo/DCA_ex/shear05_402_PB.dat');
 % config=load('DCA_inf.mat');
 % config=config.samples_DCA;
 
-%config=ones(1000,408);
-lim=Mend; %was at 5
+
+lim=Mend; 
 configfull=[config(1:lim,1:12), ones(lim,1), config(1:lim,13:14), ones(lim,1), config(1:lim,15:16), ones(lim,1), config(1:lim,17:397), ones(lim,3), config(1:lim,398:402)];
 
-consensus=load('C:\Users\msche\OneDrive\Documents\EPFL\TP4\DCA_ex\consensus_shearPB.dat');
+%consensus=load('/Users/ravasio/Documents/Allostery/Gitlab/codes_coop/consensus_shearPB.dat');
     
 xl=12;
 yl=12;
@@ -384,9 +384,6 @@ pos = [posx;posy];
 ids = {idd,nid,itt,nit,idt,nidt};
 mats= {Pmat,Tmat,PTmat};
 
-
-file =[];
-
 for cc=Minit:Mend
       
         state  = configfull(cc,:);  
@@ -395,31 +392,22 @@ for cc=Minit:Mend
 
         [pcost,~] = comppcost3PB(Mmat,pert,targ,allos,pos,ids,mats);
          
-        state1 = config(cc,:);
-        N=length(state1);
-        distseq=zeros(N,1);
+        %state1 = config(cc,:);
+        %N=length(state1);
+        %distseq=zeros(N,1);
+        %for i=1:N
+        %   if state1(i) == consensus(i)
+        %       distseq(i)=0;
+        %   else
+        %       distseq(i)=1;
+        %   end
+        %end
 
-        for i=1:N
-         if state1(i) == consensus(i)
-          distseq(i)=0;
-          else
-          distseq(i)=1;
-          end
-         end
+        %dist=sum(distseq(:));
+      
+end
 
-        dist=sum(distseq(:));
+end
+
         
-        file =[file; dist, pcost];
-end
 
-        dirc  = './';
-        file1nm = 'prova_large';
-        xname = sprintf('%d', xl);
-        yname = sprintf('%d', yl);
-        nsname = sprintf('%d',nsp);
-        ccname = sprintf('%d',cc);
-        FILE1 = [dirc,file1nm '_' xname '_' yname '_' nsname '_' ccname '_PB.dat'];
-
-        dlmwrite(saveName,file,'\t')
-
-end
