@@ -1,9 +1,9 @@
-function [cons, Delta_E, Delta_F] = mutation_cost(Mend)
-
+function [cons, Delta_E, Delta_F] = mutation_cost(Mend, filename)
 % The function here will compute the cost of mutation in our problem
 %   parameters :
 %       a : fields for our model with energy E = -a*X
 %       X : A configuration of the system
+%       filename : path of the file where are the fields
 % It will return the cost of single mutations in
 %the mechanical network Delta_F and inferred model Delta_E.
 % [cons, DE,~]=mutation_cost(15000)
@@ -11,9 +11,11 @@ function [cons, Delta_E, Delta_F] = mutation_cost(Mend)
 %% Load
 %In a you need to load the field inferred via the *independent* model with
 %non-linearity
-a = load('/Users/ravasio/Documents/Allostery/Gitlab/TP4_coevolve/?');
-X = load('/Users/ravasio/Documents/Allostery/Epistasis/shear05_402_PB.dat');
-listpos = importdata('/Users/ravasio/Documents/Allostery/Gitlab/codes_coop/Polished_code/COOP_L12_Nsp360/listpos.dat'); % list of link positions in decreasing order of importance for mutation costs, to identify neutral positions
+addpath('C:\Users\msche\OneDrive\Documents\EPFL\TP4\PlosNonLinFonction\NewFreshStart')
+parameters = load(filename);
+a = parameters.out.a;
+X = load('C:\Users\msche\OneDrive\Documents\EPFL\TP4\DCA_ex\shear05_402_PB.dat');
+listpos = importdata('C:\Users\msche\OneDrive\Documents\EPFL\TP4\PlosNonLinFonction\NewFreshStart\mutation_costs\listpos.dat'); % list of link positions in decreasing order of importance for mutation costs, to identify neutral positions
 
 
 %% Initialize
@@ -22,6 +24,9 @@ delta_E = zeros(numel(X(1,:)),1);
 delta_F = zeros(numel(X(1,:)),1);
 Delta_E = zeros(numel(X(1,:)),1);
 Delta_F = zeros(numel(X(1,:)),1);
+
+%% Definition of the non-linearity
+V = @(E) monotone(parameters.out.x', parameters.out.bin_centers, E);
 
 %% Mutation costs in the mechanical network
 
@@ -44,7 +49,7 @@ Delta_F = zeros(numel(X(1,:)),1);
 
 for m = 1:Mend
     
-    grid = 1-X(m,:); % Need to flip configurations for the gauge of parameters
+    grid = X(m,:); % Need to flip configurations for the gauge of parameters
     gridp = grid(:);
 
     for r=1:length(X(1,:))
@@ -64,8 +69,8 @@ for m = 1:Mend
   
         gridpp = gridp;
         gridpp(r) = gridp(pos_ref1);
-        gridpp(pos_ref1) = gridp(r);
-        delta_E(r) = isingenergy_h(gridpp,a) - isingenergy_h(gridp,a); % effective single site cost in the inferred model
+        %gridpp(pos_ref1) = gridp(r);
+        delta_E(r) = non_linear_energy(gridpp,a, V) - non_linear_energy(gridp,a, V); % effective single site cost in the inferred model
     end
     
     Delta_E = Delta_E + delta_E;
