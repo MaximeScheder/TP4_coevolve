@@ -22,20 +22,39 @@ E_samples = samples*a;
 % Perform n_steps of Gibbs sampling.
 for j = 1:n_steps
     % Calculate energy when current neuron = 0/1.
+    %choose a random spring
+    neuron_id = random('Discrete Uniform', 402);
+    neuron_swap = random('Discrete Uniform', 402);
+    if neuron_swap == neuron_id
+        neuron_swap = neuron_swap + 1;
+    end
+    if neuron_swap == 403
+        neuron_swap = 1;
+    end
+    
+    new_seq = samples;
+    new_seq(:, neuron_id) = 1-samples(:, neuron_id);
+    new_seq(:, neuron_swap) = 1-samples(:,neuron_swap);
     deltaE = a(neuron_id);
-    E0 = E_samples - samples(:, neuron_id).*deltaE;
-    E1 = E_samples + (1 - samples(:, neuron_id)).*deltaE;
+    E0 = E_samples - samples(:, neuron_id).*deltaE + (1 - samples(:, neuron_swap)).*a(neuron_swap);
+    E1 = E_samples + (1 - samples(:, neuron_id)).*deltaE - samples(:, neuron_swap).*a(neuron_swap);
     % Calculate current neurons' spiking probability, flip neurons, and
     %update the energy of samples.
-    p_spike = 1./(1+exp(V(E1) - V(E0)));
+    V_E1 = V(E1);
+    V_E0 = V(E0);
+    p_spike = 1./(1+exp(V_E1 - V_E0));
+    %p_spike(V_E1 < V_E0) = 1;
     flipped = rand(M,1) < p_spike;
-    E_samples = E_samples + (flipped - samples(:,neuron_id)).*deltaE;
+    to_keep = samples(:, neuron_id)==samples(:, neuron_swap);
+    temp = samples(:, neuron_id);
+    flipped(to_keep) = temp(to_keep);
+    temp_swap = samples(:, neuron_swap);
+    temp_swap(~to_keep) = 1-flipped(~to_keep);
+    E_samples = E_samples + (flipped - samples(:,neuron_id)).*deltaE + (temp_swap-samples(:, neuron_swap))*a(neuron_swap);
     samples(:,neuron_id) = flipped;
+    samples(:, neuron_swap) = temp_swap;
     % Move on to the next neuron.
     neuron_id = neuron_id + 1;
-    if neuron_id == n+1
-        neuron_id = 1;
-    end
 end
 
 end

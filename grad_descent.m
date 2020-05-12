@@ -22,11 +22,9 @@ figure
 ButtonHandle = uicontrol('Style', 'PushButton', ...
                          'String', 'Stop loop', ...
                          'Callback', 'delete(gcbf)');
-% figure
-% ButtonReduce = uicontrol('Style', 'PushButton', ...
-%                          'String', 'Reduce', ...
-%                          'Callback', 'delete(gcbf)'); 
                                    
+
+samples_0 = samples_batch;                   
 pars = pars0;
 [g, samples_batch] = grad(pars0, samples_batch);
 iteration = 0;
@@ -36,14 +34,13 @@ average_occupation = [];
 std_occupation = [];
 
 % parameters for the rate adaptation
-beta = 0.5;
-alpha = 1.2;
+beta = 0.2;
+alpha = 1.1;
 l_max = 1;
 l_min = 1e-20;
 g_old = g;
 
-% reducution rate to make the gradient to converge
-r = 0.9;
+restart = 0;
 
 while iteration <= iter
     
@@ -58,23 +55,25 @@ while iteration <= iter
 %       end
     pause(0.01)
     
+    pars_old = pars;
     % methode for adaptation of learning_rates
     pars = pars - learning_rate.*g;
     learning_rate = adapt_rate(learning_rate, g, g_old, alpha, beta, l_max, l_min);
     g_old = g;
     
-    % methode without adaptation
-    %pars = pars - learning_rate.*g;
     
     [g, samples_batch] = grad(pars, samples_batch);
+
     [mean, var] = compute_mean_batch(samples_batch);
     
-    %mean and std of the occupation mean
+    %mean and std of the occupation
     average_occupation = [average_occupation, mean];
     std_occupation = [std_occupation, var];
     
     iteration = iteration + 1;
+    restart = restart +1;
     disp(['Iteration: ', num2str(iteration), ...
-          ', ||Gradient||: ', num2str(norm(g))]);
+          ', ||Gradient||: ', num2str(max(abs(g))), ', ||diff_param||: ',...
+          num2str(max(abs(pars_old-pars)./pars))]);
 end
 end

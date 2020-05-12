@@ -5,6 +5,7 @@ function E = non_linear_energy(grid, h, V)
 %               V - non linear function V(E)
 
 h = reshape(h, [], 1);
+grid = reshape(grid, [], 402);
 E = -(grid*h);
 E = V(E);
 end

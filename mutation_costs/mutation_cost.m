@@ -1,4 +1,4 @@
-function [cons, Delta_E, Delta_F] = mutation_cost(Mend, filename)
+function [cons, Delta_E, Delta_F] = mutation_cost(Mend, data, filename)
 % The function here will compute the cost of mutation in our problem
 %   parameters :
 %       a : fields for our model with energy E = -a*X
@@ -14,7 +14,8 @@ function [cons, Delta_E, Delta_F] = mutation_cost(Mend, filename)
 addpath('C:\Users\msche\OneDrive\Documents\EPFL\TP4\PlosNonLinFonction\NewFreshStart')
 parameters = load(filename);
 a = parameters.out.a;
-X = load('C:\Users\msche\OneDrive\Documents\EPFL\TP4\DCA_ex\shear05_402_PB.dat');
+X = data;
+%X = load('C:\Users\msche\OneDrive\Documents\EPFL\TP4\DCA_ex\shear05_402_PB.dat');
 listpos = importdata('C:\Users\msche\OneDrive\Documents\EPFL\TP4\PlosNonLinFonction\NewFreshStart\mutation_costs\listpos.dat'); % list of link positions in decreasing order of importance for mutation costs, to identify neutral positions
 
 
@@ -69,8 +70,8 @@ for m = 1:Mend
   
         gridpp = gridp;
         gridpp(r) = gridp(pos_ref1);
-        %gridpp(pos_ref1) = gridp(r);
-        delta_E(r) = non_linear_energy(gridpp,a, V) - non_linear_energy(gridp,a, V); % effective single site cost in the inferred model
+        gridpp(pos_ref1) = gridp(r);
+        delta_E(r) = non_linear_energy(gridpp, a, V) - non_linear_energy(gridp, a, V); % effective single site cost in the inferred model
     end
     
     Delta_E = Delta_E + delta_E;

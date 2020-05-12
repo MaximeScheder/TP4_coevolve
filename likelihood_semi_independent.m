@@ -26,7 +26,7 @@ function neg_log_L = likelihood_semi_independent(data, M_samples, a, ...
 %
 % Required m-files: getZ_semi_independent.m
 
-Z = getZ_semi_independent(M_samples, a, x, bin_centers, betas);
+Z = getZ_semi_independent(data, M_samples, a, x, bin_centers, betas);
 V = @(E)monotone(x', bin_centers, E);
 neg_log_L = (Z + mean(V(data*a))) / size(a, 1);
 

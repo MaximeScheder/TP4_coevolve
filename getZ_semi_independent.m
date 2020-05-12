@@ -1,4 +1,4 @@
-function Z = getZ_semi_independent(M_samples, a, x, bin_centers, betas)
+function Z = getZ_semi_independent(data, M_samples, a, x, bin_centers, betas)
 %getZ_semi_independent Estimates the partition function of a semiparametric
 %independent model.
 %The estimator uses annealed importance sampling (see e.g. Learning and
@@ -33,7 +33,7 @@ V = @(E, x)monotone(x', bin_centers, E);
 Venergy = @(samples, x)V(samples*a, x);
 Venergy_diff = @(samples, b_k, b_k_1)(Venergy(samples, (1-b_k_1)*x_linear + b_k_1*x) - Venergy(samples, (1-b_k)*x_linear + b_k*x));
 % Draw samples from p_0 and get the first probability ratio.
-samples = rand(M_samples, n);
+samples = data(1:M_samples, :);
 spike_probs = exp(-a') ./ (1 + exp(-a'));
 samples = samples < repmat(spike_probs, [M_samples, 1]);
 log_prob_ratios = Venergy_diff(samples, betas(2), betas(1));
@@ -44,6 +44,6 @@ for k = 1:(length(betas) - 2)
     log_prob_ratios = log_prob_ratios + Venergy_diff(samples, betas(k+2), betas(k+1));
 end
 % Calculate Z estimate.
-ln_Z_0 = bin_centers(1)+sum(log(1 + exp(-a)));
-Z = ln_Z_0 + mean(log_prob_ratios);
+Z_0 = bin_centers(1)+sum(log(1 + exp(-a)));
+Z = Z_0 + mean(log_prob_ratios);
 end

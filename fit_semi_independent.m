@@ -59,7 +59,7 @@ for k = 1:n_pools
 end
 % Transform samples into samples from the initial model.
 V = @(E)monotone(x0', bin_centers, E);
-burn_in = 10*options.gibbs_steps; % Rough guess for MCMC burn-in time.
+burn_in = options.gibbs_steps; % Rough guess for MCMC burn-in time.
 parfor k = 1:n_pools
     samples = squeeze(samples_batch(:,:,k));
     samples = sparse(samples);
@@ -71,7 +71,7 @@ grad = @(pars, samples_batch)Dloss(pars, bin_centers, data_batch, ...
                                    samples_batch, options.gibbs_steps, ...
                                    n_pools);
 pars = grad_descent(grad, pars0, learning_rate, samples_batch, ...
-                    options.iter, bin_centers);
+                    options.iter);
 out.a = pars(1:n);
 out.x = pars((n+1):end);
 out.bin_centers = in.bin_centers;

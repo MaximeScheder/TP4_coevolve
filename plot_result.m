@@ -32,7 +32,7 @@ title(['N_P = ', filename(16:end-4)])
 
 true_F = load('single_costs_mechanical.dat');
 
-[~, model_E, ~] = mutation_cost(Mend, filename);
+[~, model_E, ~] = mutation_cost(Mend, data, filename);
 
 % Compute correlation coefficient
 c = corrcoef(model_E,true_F);
